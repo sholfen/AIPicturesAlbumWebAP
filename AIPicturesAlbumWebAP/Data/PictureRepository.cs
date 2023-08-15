@@ -12,10 +12,6 @@ namespace AIPicturesAlbumWebAP.Data
         public static string BlobConnectionString = string.Empty;
         public static string TableConnectionString = string.Empty;
 
-        //private readonly string _connectionString = "DefaultEndpointsProtocol=https;AccountName=voicedubbing;AccountKey=zTHm2subJmv5zVXGphM9cXsD7R87ABKQYFTJrJcxnxirZ6/RMHUKkzsJIOaRQzygH3yLiWXPusmy+AStazzeoA==;EndpointSuffix=core.windows.net";
-
-        //private readonly string _connectionString = string.Empty;
-
         public static string CDNDomain = string.Empty;
 
         private TableClient? _cosmosClient = null;
