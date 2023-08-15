@@ -1,0 +1,21 @@
+﻿@page "/ListPics"
+@using AIPicturesAlbumWebAP.Data
+@inject IPictureAppService pictureAppService
+
+<h3>列出所有圖片</h3>
+
+@foreach (var data in pictureDatas)
+{
+    <img src="@data.ImageUrl" /> <br />
+}
+
+
+
+@code {
+    private List<PictureData> pictureDatas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pictureDatas = await pictureAppService.GetAllPicData();
+    }
+}

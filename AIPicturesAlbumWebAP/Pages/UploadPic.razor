@@ -1,0 +1,35 @@
+﻿@page "/UploadPic"
+@using AIPicturesAlbumWebAP.Data
+@inject IPictureAppService pictureAppService
+
+<h3>UploadPic</h3>
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay=2000 Placement="ToastsPlacement.TopCenter" />
+
+<InputFile OnChange="@LoadFiles" multiple />
+
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+    private IBrowserFile browserFile;
+    private async void LoadFiles(InputFileChangeEventArgs e)
+    {
+        browserFile = e.File;
+        var stream = browserFile.OpenReadStream(maxAllowedSize: 512000000);
+        PictureData pictureData = new PictureData
+        {
+            Desc = string.Empty,
+            FileName = browserFile.Name,
+            ImageUrl = PictureRepository.CDNDomain + browserFile.Name,
+            Title = string.Empty
+        };
+        await pictureAppService.AddPicData(pictureData, stream);
+        Task.WaitAll();
+        messages.Add(CreateToastMessage(ToastType.Info));
+    }
+
+    private ToastMessage CreateToastMessage(ToastType toastType)
+    => new ToastMessage
+    {
+        Type = toastType,
+        Message = $"File Uploaded. DateTime: {DateTime.Now}",
+    };
+}
