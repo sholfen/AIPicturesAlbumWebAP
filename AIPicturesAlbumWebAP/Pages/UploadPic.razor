@@ -1,6 +1,11 @@
 ﻿@page "/UploadPic"
 @using AIPicturesAlbumWebAP.Data
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider authenticationStateProvider
 @inject IPictureAppService pictureAppService
+@inject IUserAppService userAppService
+@inject NavigationManager navManager
 
 <h3>UploadPic</h3>
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay=2000 Placement="ToastsPlacement.TopCenter" />
@@ -10,6 +15,15 @@
 @code {
     List<ToastMessage> messages = new List<ToastMessage>();
     private IBrowserFile browserFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!userAppService.CheckLoginState())
+        {
+            navManager.NavigateTo("/");//https://www.syncfusion.com/faq/blazor/routing/how-can-i-redirect-to-another-page-in-blazor
+        }
+    }
+
     private async void LoadFiles(InputFileChangeEventArgs e)
     {
         browserFile = e.File;

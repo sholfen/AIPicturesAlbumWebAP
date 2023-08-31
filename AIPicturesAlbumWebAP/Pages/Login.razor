@@ -1,0 +1,32 @@
+﻿@page "/Login"
+@using AIPicturesAlbumWebAP.Data;
+@inject IUserAppService userAppService
+@inject NavigationManager navManager
+<h3>登入</h3>
+
+@* <EditForm Model="@loginModel" OnSubmit="@UserLogin">
+    <span>名稱</span><InputText @bind-Value="loginModel.UserName" /> <br />
+    <span>網址</span><InputText type="password" @bind-Value="loginModel.Password"></InputText> <br />
+    <button type="submit">新增</button>
+</EditForm> *@
+<form method="post" action="Auth">
+    <input type="text" name="UserName" />
+    <input type="password" name="Password" />
+    <input type="submit" value="登入" />
+</form>
+<span>@message</span>
+
+@code {
+    private LoginModel loginModel = new ();
+    private string message = string.Empty;
+
+    private async Task UserLogin()
+    {
+        var isLogin = await userAppService.Login(loginModel.UserName, loginModel.Password);
+        if(isLogin)
+        {
+            navManager.NavigateTo("/UploadPic");
+        }
+        message = "帳密錯誤";
+    }
+}

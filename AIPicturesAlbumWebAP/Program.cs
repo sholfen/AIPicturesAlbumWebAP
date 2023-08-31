@@ -1,5 +1,7 @@
 using AIPicturesAlbumWebAP.Data;
 using BlazorBootstrap;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,11 +10,16 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
+builder.Services.AddAuthentication("Cookies").AddCookie();
+builder.Services.AddHttpContextAccessor();
+
 //setup DI
 builder.Services.AddTransient(typeof(IPictureRepository), typeof(PictureRepository));
 builder.Services.AddTransient(typeof(IPictureAppService), typeof(PictureAppService));
+builder.Services.AddTransient(typeof(IUserAppService), typeof(UserAppService));
 
 builder.Services.AddBlazorBootstrap();
+builder.Services.AddMvc();
 
 var app = builder.Build();
 
@@ -31,6 +38,11 @@ PictureRepository.ContainerName = containerName;
 PictureRepository.BlobConnectionString = config.GetConnectionString("AzureBlobContainer");
 PictureRepository.TableConnectionString = config.GetConnectionString("AzureTable");
 PictureRepository.CDNDomain= config.GetValue<string>("PicDomain");
+UserData.UserName = config.GetSection("AdminUser").GetValue<string>("User");
+UserData.UserPassword = config.GetSection("AdminUser").GetValue<string>("Password");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
@@ -39,6 +51,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
+app.MapControllers();
 app.MapFallbackToPage("/_Host");
 
 app.Run();
