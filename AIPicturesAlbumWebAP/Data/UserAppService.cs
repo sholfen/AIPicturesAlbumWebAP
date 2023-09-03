@@ -11,7 +11,6 @@ namespace AIPicturesAlbumWebAP.Data
         public UserAppService(IHttpContextAccessor httpContextAccessor) 
         {
             _httpContextAccessor = httpContextAccessor;
-            //_signInManager = signInManager;
         }
 
         public async Task<bool> Login(string username, string password)
@@ -24,7 +23,6 @@ namespace AIPicturesAlbumWebAP.Data
                 }, "auth");
                 ClaimsPrincipal claims = new ClaimsPrincipal(claimsIdentity);
                 await _httpContextAccessor.HttpContext.SignInAsync(claims);
-                //await _signInManager.SignInAsync(claims, true);
                 return true;
             }
             return false;
@@ -33,7 +31,6 @@ namespace AIPicturesAlbumWebAP.Data
         public async Task Logout()
         {
             await _httpContextAccessor.HttpContext.SignOutAsync();
-            //await _signInManager.SignOutAsync();
         }
 
         public bool CheckLoginState()

@@ -1,7 +1,6 @@
 ﻿@page "/Login"
 @using AIPicturesAlbumWebAP.Data;
 @inject IUserAppService userAppService
-@inject NavigationManager navManager
 <h3>登入</h3>
 
 @* <EditForm Model="@loginModel" OnSubmit="@UserLogin">
@@ -14,19 +13,7 @@
     <input type="password" name="Password" />
     <input type="submit" value="登入" />
 </form>
-<span>@message</span>
 
 @code {
-    private LoginModel loginModel = new ();
-    private string message = string.Empty;
 
-    private async Task UserLogin()
-    {
-        var isLogin = await userAppService.Login(loginModel.UserName, loginModel.Password);
-        if(isLogin)
-        {
-            navManager.NavigateTo("/UploadPic");
-        }
-        message = "帳密錯誤";
-    }
 }
