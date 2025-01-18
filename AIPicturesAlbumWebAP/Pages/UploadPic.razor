@@ -1,7 +1,9 @@
 ﻿@page "/UploadPic"
 @using AIPicturesAlbumWebAP.Data
 @using System.Security.Claims
+@using AIPicturesAlbumWebAP.Data.Model
 @using Microsoft.AspNetCore.Components.Authorization
+@using ImageMagick
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IPictureAppService pictureAppService
 @inject IUserAppService userAppService
@@ -11,9 +13,11 @@
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay=2000 Placement="ToastsPlacement.TopCenter" />
 
 <InputFile OnChange="@LoadFiles" multiple />
+<label>@hint</label>
 
 @code {
     List<ToastMessage> messages = new List<ToastMessage>();
+    private string hint = string.Empty;
     private IBrowserFile browserFile;
 
     protected override async Task OnInitializedAsync()
@@ -24,20 +28,60 @@
         }
     }
 
-    private async void LoadFiles(InputFileChangeEventArgs e)
+    private async Task LoadFiles(InputFileChangeEventArgs e)
     {
+        hint = "上傳中...";
         browserFile = e.File;
         var stream = browserFile.OpenReadStream(maxAllowedSize: 512000000);
+
+        var readSettings = new MagickReadSettings() { Format = MagickFormat.Jpeg, Interlace = Interlace.Jpeg };
+        var memStream = new MemoryStream();
+        var sourceStream = new MemoryStream();
+        await stream.CopyToAsync(memStream);
+        memStream.Position = 0;
+        using var thumb = new MagickImage(memStream, readSettings);
+        var size = new MagickGeometry(thumb.Width / 6, thumb.Height / 6)
+        {
+            IgnoreAspectRatio = true
+        };
+        thumb.Write(sourceStream);
+        thumb.Resize(size);
+        string guid = Guid.NewGuid().ToString();
+        PictureData thumbPicData = new PictureData
+        {
+            Desc = string.Empty,
+            FileName = "thumb_" + $"{guid}_" + browserFile.Name,
+            ImageUrl = PictureRepository.CDNDomain + "thumb_" + $"{guid}_" + browserFile.Name,
+            IsThumb = true,
+            ThumbUrl = string.Empty,
+            Title = string.Empty
+        };
+
+        Stream? thumbStream = new MemoryStream();
+        thumb.Write(thumbStream);
+        //image.Save(thumbStream, ImageFormat.Jpeg);
+        thumbStream.Position = 0;
+        await pictureAppService.AddPicData(thumbPicData, thumbStream);
+
+        //Picture
         PictureData pictureData = new PictureData
         {
             Desc = string.Empty,
-            FileName = browserFile.Name,
-            ImageUrl = PictureRepository.CDNDomain + browserFile.Name,
-            Title = string.Empty
+            FileName = $"{guid}_"+browserFile.Name,
+            ImageUrl = PictureRepository.CDNDomain + $"{guid}_" + browserFile.Name,
+            Title = string.Empty,
+            ThumbGuid = thumbPicData.RowKey,
+            ThumbUrl = thumbPicData.ImageUrl,
+            IsThumb = false
         };
-        await pictureAppService.AddPicData(pictureData, stream);
+        sourceStream.Position = 0;
+        await pictureAppService.AddPicData(pictureData, sourceStream);
+
         Task.WaitAll();
+        thumbStream.Close();
+        stream.Close();
         messages.Add(CreateToastMessage(ToastType.Info));
+        hint = "上傳完成";
     }
 
     private ToastMessage CreateToastMessage(ToastType toastType)

@@ -1,14 +1,20 @@
 ﻿@page "/ListPics"
 @using AIPicturesAlbumWebAP.Data
+@using AIPicturesAlbumWebAP.Data.Model
 @inject IPictureAppService pictureAppService
 
 <h3>列出所有圖片</h3>
-
-@foreach (var data in pictureDatas)
-{
-    <img src="@data.ImageUrl" /> <br />
-}
-
+<div class="container-md">
+    @foreach (var data in pictureDatas)
+    {
+        <div class="col">
+            <a href="@data.ImageUrl" target="_blank">
+                <img src="@data.ThumbUrl" alt=""
+                     style="padding: 15px 0;width: 37rem;max-width: 100%;height: auto;vertical-align: middle;border-style: none;" />
+            </a>
+        </div>
+    }
+</div>
 
 
 @code {

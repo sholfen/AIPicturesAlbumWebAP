@@ -1,4 +1,4 @@
-﻿namespace AIPicturesAlbumWebAP.Data
+﻿namespace AIPicturesAlbumWebAP.Data.Model
 {
     public class LoginModel
     {

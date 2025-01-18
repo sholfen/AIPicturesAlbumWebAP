@@ -1,4 +1,5 @@
 ﻿using AIPicturesAlbumWebAP.Data;
+using AIPicturesAlbumWebAP.Data.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AIPicturesAlbumWebAP.Controllers

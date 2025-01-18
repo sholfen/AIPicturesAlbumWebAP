@@ -1,7 +1,7 @@
 ﻿using Azure.Data.Tables;
 using Azure;
 
-namespace AIPicturesAlbumWebAP.Data
+namespace AIPicturesAlbumWebAP.Data.Model
 {
     public record AzureTestData : ITableEntity
     {

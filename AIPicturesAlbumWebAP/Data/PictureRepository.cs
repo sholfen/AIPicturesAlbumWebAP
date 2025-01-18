@@ -1,4 +1,5 @@
-﻿using Azure.Data.Tables;
+﻿using AIPicturesAlbumWebAP.Data.Model;
+using Azure.Data.Tables;
 using Azure.Storage.Blobs;
 using System.ComponentModel;
 
@@ -54,6 +55,7 @@ namespace AIPicturesAlbumWebAP.Data
         public async Task AddPicData(PictureData pictureData, Stream stream)
         {
             var response = await _blobContainerClient.UploadBlobAsync(pictureData.FileName, stream);
+           // pictureData.ImageUrl = $"{CDNDomain}/{ContainerName}/{pictureData.FileName}";
             await _cosmosClient.AddEntityAsync<PictureData>(pictureData);
         }
 
@@ -72,6 +74,22 @@ namespace AIPicturesAlbumWebAP.Data
         public async Task<List<PictureData>> GetPictureDataList()
         {
             List<PictureData> list = _cosmosClient.Query<PictureData>(p => p.PartitionKey == PartitionKey).ToList();
+
+            list = list.Where(p => !string.IsNullOrEmpty(p.ThumbUrl))
+                .OrderByDescending(p => p.Timestamp)
+                .ToList();
+
+            return list;
+        }
+
+        public async Task<List<PictureData>> GetAllThumbPicData()
+        {
+            List<PictureData> list = _cosmosClient.Query<PictureData>(p => p.PartitionKey == PartitionKey)
+                .ToList();
+
+            list = list.Where(p => string.IsNullOrEmpty(p.ThumbUrl))
+                .OrderByDescending(p=>p.Timestamp)
+                .ToList();
 
             return list;
         }

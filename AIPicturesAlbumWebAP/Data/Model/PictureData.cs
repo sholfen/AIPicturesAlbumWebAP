@@ -1,13 +1,17 @@
 ﻿using Azure;
 using Azure.Data.Tables;
 
-namespace AIPicturesAlbumWebAP.Data
+namespace AIPicturesAlbumWebAP.Data.Model
 {
     public record PictureData : ITableEntity
     {
         public string RowKey { get; set; } = Guid.NewGuid().ToString();
 
         public string PartitionKey { get; set; } = "PictureData";
+
+        public string ThumbGuid { get; set; } = string.Empty;
+
+        public bool IsThumb { get; set; } = false;
 
         public ETag ETag { get; set; } = default!;
 
@@ -18,6 +22,8 @@ namespace AIPicturesAlbumWebAP.Data
         public string Desc { get; init; } = string.Empty;
 
         public string ImageUrl { get; init; } = string.Empty;
+
+        public string ThumbUrl { get; init; } = string.Empty;
 
         public string FileName { get; set; } = string.Empty;
     }
