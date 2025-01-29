@@ -93,5 +93,11 @@ namespace AIPicturesAlbumWebAP.Data
 
             return list;
         }
+
+        public string GetImageUrlByRowKey(string rowkey)
+        {
+            var data = _cosmosClient.Query<PictureData>(p => p.PartitionKey == PartitionKey && p.RowKey == rowkey).FirstOrDefault();
+            return data.ImageUrl;
+        }
     }
 }

@@ -1,0 +1,22 @@
+﻿@page "/ImagePage/{RowKey}"
+@using AIPicturesAlbumWebAP.Data
+@using AIPicturesAlbumWebAP.Data.Model
+@inject IPictureAppService pictureAppService
+
+<h3>ImagePage</h3>
+
+<img src="@Img"
+     style="padding: 15px 0;width: 75rem;max-width: 100%;height: auto;vertical-align: middle;border-style: none;" 
+     />
+
+@code {
+    [Parameter]
+    public string RowKey { get; set; } = string.Empty;
+
+    public string Img { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Img = pictureAppService.GetImageUrlByRowKey(RowKey);
+    }
+}

@@ -19,6 +19,7 @@
     List<ToastMessage> messages = new List<ToastMessage>();
     private string hint = string.Empty;
     private IBrowserFile browserFile;
+    private IReadOnlyList<IBrowserFile> browserFiles;
 
     protected override async Task OnInitializedAsync()
     {
@@ -31,55 +32,63 @@
     private async Task LoadFiles(InputFileChangeEventArgs e)
     {
         hint = "上傳中...";
-        browserFile = e.File;
-        var stream = browserFile.OpenReadStream(maxAllowedSize: 512000000);
+        //browserFile = e.File;
+        browserFiles = e.GetMultipleFiles();
+        //var stream = browserFile.OpenReadStream(maxAllowedSize: 512000000);
 
-        var readSettings = new MagickReadSettings() { Format = MagickFormat.Jpeg, Interlace = Interlace.Jpeg };
-        var memStream = new MemoryStream();
-        var sourceStream = new MemoryStream();
-        await stream.CopyToAsync(memStream);
-        memStream.Position = 0;
-        using var thumb = new MagickImage(memStream, readSettings);
-        var size = new MagickGeometry(thumb.Width / 6, thumb.Height / 6)
+        foreach (var imageFile in browserFiles)
         {
-            IgnoreAspectRatio = true
-        };
-        thumb.Write(sourceStream);
-        thumb.Resize(size);
-        string guid = Guid.NewGuid().ToString();
-        PictureData thumbPicData = new PictureData
-        {
-            Desc = string.Empty,
-            FileName = "thumb_" + $"{guid}_" + browserFile.Name,
-            ImageUrl = PictureRepository.CDNDomain + "thumb_" + $"{guid}_" + browserFile.Name,
-            IsThumb = true,
-            ThumbUrl = string.Empty,
-            Title = string.Empty
-        };
+            hint = $"{imageFile.Name} 上傳中...";
 
-        Stream? thumbStream = new MemoryStream();
-        thumb.Write(thumbStream);
-        //image.Save(thumbStream, ImageFormat.Jpeg);
-        thumbStream.Position = 0;
-        await pictureAppService.AddPicData(thumbPicData, thumbStream);
+            var stream = imageFile.OpenReadStream(maxAllowedSize: 512000000);
+            var readSettings = new MagickReadSettings() { Format = MagickFormat.Jpeg, Interlace = Interlace.Jpeg };
+            var memStream = new MemoryStream();
+            var sourceStream = new MemoryStream();
+            await stream.CopyToAsync(memStream);
+            memStream.Position = 0;
+            using var thumb = new MagickImage(memStream, readSettings);
+            var size = new MagickGeometry(thumb.Width / 6, thumb.Height / 6)
+            {
+                IgnoreAspectRatio = true
+            };
+            thumb.Write(sourceStream);
+            thumb.Resize(size);
+            string guid = Guid.NewGuid().ToString();
+            PictureData thumbPicData = new PictureData
+            {
+                Desc = string.Empty,
+                FileName = "thumb_" + $"{guid}_" + imageFile.Name,
+                ImageUrl = PictureRepository.CDNDomain + "thumb_" + $"{guid}_" + imageFile.Name,
+                IsThumb = true,
+                ThumbUrl = string.Empty,
+                Title = string.Empty
+            };
 
-        //Picture
-        PictureData pictureData = new PictureData
-        {
-            Desc = string.Empty,
-            FileName = $"{guid}_"+browserFile.Name,
-            ImageUrl = PictureRepository.CDNDomain + $"{guid}_" + browserFile.Name,
-            Title = string.Empty,
-            ThumbGuid = thumbPicData.RowKey,
-            ThumbUrl = thumbPicData.ImageUrl,
-            IsThumb = false
-        };
-        sourceStream.Position = 0;
-        await pictureAppService.AddPicData(pictureData, sourceStream);
+            Stream? thumbStream = new MemoryStream();
+            thumb.Write(thumbStream);
+            //image.Save(thumbStream, ImageFormat.Jpeg);
+            thumbStream.Position = 0;
+            await pictureAppService.AddPicData(thumbPicData, thumbStream);
 
-        Task.WaitAll();
-        thumbStream.Close();
-        stream.Close();
+            //Picture
+            PictureData pictureData = new PictureData
+            {
+                Desc = string.Empty,
+                FileName = $"{guid}_" + imageFile.Name,
+                ImageUrl = PictureRepository.CDNDomain + $"{guid}_" + imageFile.Name,
+                Title = string.Empty,
+                ThumbGuid = thumbPicData.RowKey,
+                ThumbUrl = thumbPicData.ImageUrl,
+                IsThumb = false
+            };
+            sourceStream.Position = 0;
+            await pictureAppService.AddPicData(pictureData, sourceStream);
+
+            Task.WaitAll();
+            thumbStream.Close();
+            stream.Close();
+        }
+ 
         messages.Add(CreateToastMessage(ToastType.Info));
         hint = "上傳完成";
     }

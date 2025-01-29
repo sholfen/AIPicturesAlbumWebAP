@@ -8,5 +8,6 @@ namespace AIPicturesAlbumWebAP.Data
         Task<PictureData> GetPictureData(string rowkey);
         Task<List<PictureData>> GetPictureDataList();
         Task<List<PictureData>> GetAllThumbPicData();
+        string GetImageUrlByRowKey(string rowkey);
     }
 }

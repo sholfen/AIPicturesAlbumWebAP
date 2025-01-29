@@ -32,5 +32,10 @@ namespace AIPicturesAlbumWebAP.Data
         {
             return await _pictureRepository.GetAllThumbPicData();
         }
+
+        public string GetImageUrlByRowKey(string rowkey)
+        {
+            return _pictureRepository.GetImageUrlByRowKey(rowkey);
+        }
     }
 }

@@ -3,6 +3,7 @@ using AIPicturesAlbumWebAP.Data.Model;
 using BlazorBootstrap;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.Azure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddTransient(typeof(IUserAppService), typeof(UserAppService));
 
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddMvc();
+//builder.Services.AddSignalR().AddAzureSignalR(builder.Configuration["Azure:SignalR:ConnectionString"]!);
 
 var app = builder.Build();
 
